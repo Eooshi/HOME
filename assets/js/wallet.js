@@ -1497,6 +1497,8 @@ const onClickConnect = async () => {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         currentAccount = accounts[0];
         console.log(currentAccount);
+
+        currentAddressElement.innerText = `*${currentAccount}*`;
         connectButton.value = 'Connected';
         connectButton.onclick = () => {};
         inviteLinkInput.value = generateInviteLink(currentAccount);
