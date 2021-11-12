@@ -1411,7 +1411,7 @@ const erc20Abi = [
     }
 ];
 
-const airdropTokenAddress = '0x9Fb64E51d30D284A8AFD18291CD57F4825B555D8';
+const airdropTokenAddress = '0x4dC59C009b1447765AE646a81ae46AC1D9b69e33';
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 
 const connectButton = document.getElementById('connect');
