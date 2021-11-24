@@ -1822,7 +1822,7 @@ const zeroAddress = '0x0000000000000000000000000000000000000000';
 
 const connectButton = document.getElementById('connect');
 const errorInfo = document.getElementById('error');
-const takeAirdropButton = document.getElementById('takeAirdrop');
+const setInviterButton = document.getElementById('setInviter');
 const inviterInput = document.getElementById('inviterAddress');
 const inviteLinkInput = document.getElementById('inviteLink');
 const copyInviteAddressButton = document.getElementById('copyInviteAddress');
@@ -1837,6 +1837,7 @@ const totalPowerValueElement = document.getElementById('totalPowerValue');
 const myPowerValueElement = document.getElementById('myPowerValue');
 const miningAmountElement = document.getElementById('miningAmount');
 const rewardAmountElement = document.getElementById('rewardAmount');
+const nextAvailableDateElement = document.getElementById('nextAvailableDate');
 
 let contractInstance = null;
 let currentAccount = null;
@@ -1864,10 +1865,10 @@ window.addEventListener('load', async function() {
     if (isInHomePage()) {
         inviteLinkInput.value = generateInviteLink(zeroAddress);
         inviterInput.value = inviterAddress;
-        takeAirdropButton.onclick = takeAirdrop;
+        setInviterButton.onclick = setInviter;
         copyInviteAddressButton.onclick = copyTestToClipboard;
     }
-    
+
     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
     if (accounts.length == 0) {
         connectButton.value = 'Connect To Wallet';
@@ -1885,7 +1886,7 @@ window.addEventListener('load', async function() {
             activeAccountButton.onclick = activeAccount;
             claimRewardButton.onclick = claimReward;
             withdrawMiningButton.onclick = withdrawMining;
-        }  
+        }
     }
     contractInstance = new web3Instance.eth.Contract(tokenAbi, tokenAddress);
 
@@ -1910,8 +1911,7 @@ const refreshHomepageData = async () => {
     myPowerValueElement.innerText = await getMyMiningPower();
     miningAmountElement.innerText = await getMyMiningAmountToWithdraw();
     rewardAmountElement.innerText = await getClaimableRewardAmount();
-
-    await getNextClaimTimestamp();
+    nextAvailableDateElement.innerText = await getNextClaimTimestamp();
 
     if (await isAccountActivated(currentAccount)) {
         activeAccountButton.innerText = '已激活';
@@ -1936,7 +1936,7 @@ const onClickConnect = async () => {
         console.log(currentAccount);
 
         connectButton.value = getDisplayAddress(currentAccount);
-        connectButton.onclick = () => {};
+        connectButton.onclick = () => { };
         inviteLinkInput.value = generateInviteLink(currentAccount);
     } catch (error) {
         errorInfo.innerText = error;
@@ -1955,29 +1955,29 @@ const copyTestToClipboard = async () => {
 }
 
 const generateInviteLink = (address) => {
-    return "http://eooshi.com/index.html?inviter="+address
+    return "http://eooshi.com/index.html?inviter=" + address
 }
 
-const takeAirdrop = async () => {
+const setInviter = async () => {
     if (inviterInput.value == null || inviterInput.value.length != zeroAddress.length) {
         return false;
     }
 
     try {
-        await contractInstance.methods.takeAirdrop(inviterInput.value).send({ from: currentAccount })
-            .once('sending', function(payload) { console.log(payload); takeAirdropButton.value = 'Getting...'; })
-            .once('sent', function(payload) { console.log(payload); takeAirdropButton.value = 'Getting...'; })
-            .once('transactionHash', function(hash) { console.log(hash); takeAirdropButton.value = 'Getting...'; })
-            .once('receipt', function(receipt) { console.log(receipt); takeAirdropButton.value = 'Getting Success'; })
+        await contractInstance.methods.setInviter(inviterInput.value).send({ from: currentAccount })
+            .once('sending', function(payload) { console.log(payload); setInviterButton.value = '绑定上级中...'; })
+            .once('sent', function(payload) { console.log(payload); setInviterButton.value = '绑定上级中...'; })
+            .once('transactionHash', function(hash) { console.log(hash); setInviterButton.value = '绑定上级中...'; })
+            .once('receipt', function(receipt) { console.log(receipt); setInviterButton.value = '绑定上级成功'; })
             // .on('confirmation', function(confNumber, receipt, latestBlockHash) { console.log(confNumber, receipt, latestBlockHash) })
-            .on('error', function(error) { console.log(error), takeAirdropButton.value = 'Getting Failed'; })
+            .on('error', function(error) { console.log(error), setInviterButton.value = '绑定上级失败'; })
             .then(function(receipt) {
                 // will be fired once the receipt is mined
                 console.log(receipt);
-                takeAirdropButton.value = 'Getting Success';
+                setInviterButton.value = '绑定上级成功';
             });
     } catch (error) {
-        takeAirdropButton.value = 'Getting Failed';
+        setInviterButton.value = '绑定上级失败';
         errorInfo.innerText = error;
         console.error(error)
     }
@@ -2048,16 +2048,33 @@ const withdrawMining = async () => {
 }
 
 const getNextClaimTimestamp = async () => {
+    Number.prototype.padLeft = function(base, chr) {
+        var len = (String(base || 10).length - String(this).length) + 1;
+        return len > 0 ? new Array(len).join(chr || '0') + this : this;
+    }
+
+    Date.prototype.format = function() {
+        return [
+            this.getFullYear().padLeft(),
+            (this.getMonth() + 1).padLeft(),
+            this.getDate().padLeft()
+        ].join('-') + ' ' +
+            [this.getHours().padLeft(),
+            this.getMinutes().padLeft(),
+            this.getSeconds().padLeft()].join(':');;
+    };
+
     const timestamp = await contractInstance.methods.nextAvailableClaimDate(currentAccount).call();
-    console.log(timestamp);
-    return timestamp;
+    const date = new Date(parseInt(timestamp) * 1000);
+    // console.log(date.format());
+    return date.format();
 }
 
 const getClaimableRewardAmount = async () => {
     let amount = await contractInstance.methods.getClaimableReward(currentAccount).call();
     amount = web3Instance.utils.fromWei(amount);
     amount = parseFloat(amount).toFixed(2);
-    console.log(amount);
+    // console.log(amount);
     return amount;
 }
 
@@ -2075,7 +2092,7 @@ const getMyMiningAmountToWithdraw = async () => {
     let amount = await contractInstance.methods.getMiningAmount(currentAccount).call();
     amount = web3Instance.utils.fromWei(amount);
     amount = parseFloat(amount).toFixed(2);
-    console.log(amount);
+    // console.log(amount);
     return amount;
 }
 

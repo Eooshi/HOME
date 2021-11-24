@@ -137,7 +137,7 @@
               <h4 id="list">邀请码</h4>
               <p>绑定好友开启挖矿.</p>
               <form action="javascript:void(0)" method="post">
-                <input type="text" name="email" id="inviterAddress"><input type="submit" value="绑定" id="takeAirdrop">
+                <input type="text" name="email" id="inviterAddress"><input type="submit" value="绑定" id="setInviter">
               </form>
             </div>
           </div>
@@ -203,7 +203,7 @@
               <h3>激活</h3>
               <h4><sup>消耗</sup>200000<sup>Eooshi</sup><span>开启挖矿之旅</span></h4>
              
-              <a href="#" class="buy-btn" id="activeAccountButton">激活</a>
+              <a  class="buy-btn" id="activeAccountButton">激活</a>
             </div>
           </div>
 
@@ -213,7 +213,7 @@
               <h4 id="miningAmount">0</h4>
               <h4><span>挖矿收益</span></h4>
               
-              <a href="#" class="buy-btn" id="withdrawMiningButton">提取</a>
+              <a  class="buy-btn" id="withdrawMiningButton">提取</a>
             </div>
           </div>
 
@@ -222,9 +222,9 @@
              
               <h3>持币分红待领取BUSD</h3>
               <h4 id="rewardAmount">0</h4>
-              <h4><span>下次领取倒计时：</span></h4>
+              <h4><span>下次可领取时间：</span><span id="nextAvailableDate"></span></h4>
             
-              <a href="#" class="buy-btn" id="claimReawardButton">领取</a>
+              <a  class="buy-btn" id="claimReawardButton">领取</a>
             </div>
           </div>
 
