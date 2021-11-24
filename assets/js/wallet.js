@@ -1,4 +1,4 @@
-const airdropAbi = [
+const tokenAbi = [
     {
         "inputs": [
             {
@@ -31,17 +31,11 @@ const airdropAbi = [
             {
                 "indexed": false,
                 "internalType": "address",
-                "name": "reciver",
+                "name": "account",
                 "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
             }
         ],
-        "name": "AirdropTaken",
+        "name": "AccountActivated",
         "type": "event"
     },
     {
@@ -92,6 +86,44 @@ const airdropAbi = [
         "anonymous": false,
         "inputs": [
             {
+                "indexed": false,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "inviter",
+                "type": "address"
+            }
+        ],
+        "name": "InviterSet",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "who",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "MiningTaken",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
                 "indexed": true,
                 "internalType": "address",
                 "name": "previousOwner",
@@ -105,6 +137,25 @@ const airdropAbi = [
             }
         ],
         "name": "OwnershipTransferred",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "owner",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "newPower",
+                "type": "uint256"
+            }
+        ],
+        "name": "PowerUpdated",
         "type": "event"
     },
     {
@@ -136,6 +187,58 @@ const airdropAbi = [
             }
         ],
         "name": "RewardClaimedSuccessfully",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "StackhokderFeeDistributed",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "stackholder",
+                "type": "address"
+            }
+        ],
+        "name": "StackholderAdded",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "StackholderFeeBurned",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "address",
+                "name": "stackholder",
+                "type": "address"
+            }
+        ],
+        "name": "StackholderRemoved",
         "type": "event"
     },
     {
@@ -279,7 +382,45 @@ const airdropAbi = [
                 "type": "uint256"
             }
         ],
+        "name": "_parentInviteFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
         "name": "_rewardFee",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "_stakeHolderFee",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -310,8 +451,34 @@ const airdropAbi = [
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "accountActivated",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
         "inputs": [],
-        "name": "airdropAmountPerAddress",
+        "name": "activateAccount",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "activatePrice",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -323,8 +490,59 @@ const airdropAbi = [
         "type": "function"
     },
     {
-        "inputs": [],
-        "name": "airdropRemainAmount",
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "activedAddress",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address[]",
+                "name": "addresses",
+                "type": "address[]"
+            }
+        ],
+        "name": "addMultiStackholder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "stackholder",
+                "type": "address"
+            }
+        ],
+        "name": "addStackholder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "addressPower",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -479,6 +697,13 @@ const airdropAbi = [
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "distributeStackholder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
                 "internalType": "address",
@@ -489,6 +714,51 @@ const airdropAbi = [
         "name": "excludeAccount",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getActivedAddressCount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "getAddedStackholderCount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "who",
+                "type": "address"
+            }
+        ],
+        "name": "getClaimableReward",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -547,6 +817,25 @@ const airdropAbi = [
                 "internalType": "address[]",
                 "name": "",
                 "type": "address[]"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "who",
+                "type": "address"
+            }
+        ],
+        "name": "getMiningAmount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
             }
         ],
         "stateMutability": "view",
@@ -685,7 +974,39 @@ const airdropAbi = [
                 "type": "address"
             }
         ],
+        "name": "isStackholder",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
         "name": "lastbuy",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "maxStackholderCount",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -800,6 +1121,19 @@ const airdropAbi = [
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "stackholder",
+                "type": "address"
+            }
+        ],
+        "name": "removeStackholder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "renounceOwnership",
         "outputs": [],
@@ -849,6 +1183,19 @@ const airdropAbi = [
         "inputs": [
             {
                 "internalType": "uint256",
+                "name": "price",
+                "type": "uint256"
+            }
+        ],
+        "name": "setActivatePrice",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
                 "name": "buy",
                 "type": "uint256"
             },
@@ -877,19 +1224,6 @@ const airdropAbi = [
             }
         ],
         "name": "setCharityWallet",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "uint256",
-                "name": "limit",
-                "type": "uint256"
-            }
-        ],
-        "name": "setDistributeRewardGasLimit",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -939,6 +1273,19 @@ const airdropAbi = [
             }
         ],
         "name": "setLiquidityFee",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "count",
+                "type": "uint256"
+            }
+        ],
+        "name": "setMaxStackholderCount",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -1083,6 +1430,32 @@ const airdropAbi = [
         "type": "function"
     },
     {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "stackholders",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "stopMining",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [],
         "name": "swapEnabled",
         "outputs": [
@@ -1111,25 +1484,38 @@ const airdropAbi = [
     {
         "inputs": [
             {
-                "internalType": "address",
-                "name": "inviterAddress",
-                "type": "address"
-            }
-        ],
-        "name": "takeAirdrop",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
                 "internalType": "uint256",
                 "name": "reflectionAmount",
                 "type": "uint256"
             }
         ],
         "name": "tokenFromReflection",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "tokenPerMS",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "totalPower",
         "outputs": [
             {
                 "internalType": "uint256",
@@ -1217,6 +1603,26 @@ const airdropAbi = [
         "name": "transferOwnership",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address payable",
+                "name": "to",
+                "type": "address"
+            }
+        ],
+        "name": "withdrawEarningFee",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "withdrawMining",
+        "outputs": [],
+        "stateMutability": "payable",
         "type": "function"
     },
     {
@@ -1411,7 +1817,7 @@ const erc20Abi = [
     }
 ];
 
-const airdropTokenAddress = '0x4dC59C009b1447765AE646a81ae46AC1D9b69e33';
+const tokenAddress = '0x43BF2F96F1Da3F1dBa44C375076710f7843178Da';
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 
 const connectButton = document.getElementById('connect');
@@ -1421,6 +1827,16 @@ const inviterInput = document.getElementById('inviterAddress');
 const inviteLinkInput = document.getElementById('inviteLink');
 const copyInviteAddressButton = document.getElementById('copyInviteAddress');
 const invitedAccountsElement = document.getElementById('invitedAccounts');
+
+const activeAccountButton = document.getElementById('activeAccountButton');
+const claimRewardButton = document.getElementById('claimReawardButton');
+const withdrawMiningButton = document.getElementById('withdrawMiningButton');
+
+const minterAmountElement = document.getElementById('minterAmount');
+const totalPowerValueElement = document.getElementById('totalPowerValue');
+const myPowerValueElement = document.getElementById('myPowerValue');
+const miningAmountElement = document.getElementById('miningAmount');
+const rewardAmountElement = document.getElementById('rewardAmount');
 
 let contractInstance = null;
 let currentAccount = null;
@@ -1465,9 +1881,13 @@ window.addEventListener('load', async function() {
             connectButton.innerText = getDisplayAddress(currentAccount);
             connectButton.onclick = () => { };
             inviteLinkInput.value = generateInviteLink(currentAccount);
+
+            activeAccountButton.onclick = activeAccount;
+            claimRewardButton.onclick = claimReward;
+            withdrawMiningButton.onclick = withdrawMining;
         }  
     }
-    contractInstance = new web3Instance.eth.Contract(airdropAbi, airdropTokenAddress);
+    contractInstance = new web3Instance.eth.Contract(tokenAbi, tokenAddress);
 
     if (invitedAccountsElement) {
         const accounts = await getInvitedAccounts();
@@ -1478,7 +1898,26 @@ window.addEventListener('load', async function() {
             invitedAccountsElement.innerHTML += `<li class="invite-item">${accounts[index]}</li>\n`;
         }
     }
+
+    if (isInHomePage()) {
+        await refreshHomepageData();
+    }
 })
+
+const refreshHomepageData = async () => {
+    minterAmountElement.innerText = await getActivedAccountCount();
+    totalPowerValueElement.innerText = await getTotalMiningPower();
+    myPowerValueElement.innerText = await getMyMiningPower();
+    miningAmountElement.innerText = await getMyMiningAmountToWithdraw();
+    rewardAmountElement.innerText = await getClaimableRewardAmount();
+
+    await getNextClaimTimestamp();
+
+    if (await isAccountActivated(currentAccount)) {
+        activeAccountButton.innerText = '已激活';
+        activeAccountButton.onclick = () => { };
+    }
+}
 
 const isInHomePage = () => {
     return inviteLinkInput != null;
@@ -1544,6 +1983,107 @@ const takeAirdrop = async () => {
     }
 }
 
+const activeAccount = async () => {
+    try {
+        await contractInstance.methods.activateAccount().send({ from: currentAccount })
+            .once('sending', function(payload) { console.log(payload); activeAccountButton.innerText = '激活中...'; })
+            .once('sent', function(payload) { console.log(payload); activeAccountButton.innerText = '激活中...'; })
+            .once('transactionHash', function(hash) { console.log(hash); activeAccountButton.innerText = '激活中...'; })
+            .once('receipt', function(receipt) { console.log(receipt); activeAccountButton.innerText = '激活成功'; })
+            // .on('confirmation', function(confNumber, receipt, latestBlockHash) { console.log(confNumber, receipt, latestBlockHash) })
+            .on('error', function(error) { console.log(error), activeAccountButton.innerText = '激活失败'; })
+            .then(function(receipt) {
+                // will be fired once the receipt is mined
+                console.log(receipt);
+                activeAccountButton.innerText = '激活成功';
+            });
+        await refreshHomepageData();
+    } catch (error) {
+        activeAccountButton.innerText = '激活失败';
+        console.error(error)
+    }
+}
+
+const claimReward = async () => {
+    try {
+        await contractInstance.methods.claimReward().send({ from: currentAccount })
+            .once('sending', function(payload) { console.log(payload); claimRewardButton.value = '领取中...'; })
+            .once('sent', function(payload) { console.log(payload); claimRewardButton.value = '领取中...'; })
+            .once('transactionHash', function(hash) { console.log(hash); claimRewardButton.value = '领取中...'; })
+            .once('receipt', function(receipt) { console.log(receipt); claimRewardButton.value = '领取成功'; })
+            // .on('confirmation', function(confNumber, receipt, latestBlockHash) { console.log(confNumber, receipt, latestBlockHash) })
+            .on('error', function(error) { console.log(error), claimRewardButton.value = '领取失败'; })
+            .then(function(receipt) {
+                // will be fired once the receipt is mined
+                console.log(receipt);
+                claimRewardButton.value = '领取成功';
+            });
+        await refreshHomepageData();
+    } catch (error) {
+        claimRewardButton.value = '领取失败';
+        // errorInfo.innerText = error;
+        console.error(error)
+    }
+}
+
+const withdrawMining = async () => {
+    try {
+        await contractInstance.methods.withdrawMining().send({ from: currentAccount, value: web3Instance.utils.toWei('10', 'finney') })
+            .once('sending', function(payload) { console.log(payload); withdrawMiningButton.innerText = '提取中...'; })
+            .once('sent', function(payload) { console.log(payload); withdrawMiningButton.innerText = '提取中...'; })
+            .once('transactionHash', function(hash) { console.log(hash); withdrawMiningButton.innerText = '提取中...'; })
+            .once('receipt', function(receipt) { console.log(receipt); withdrawMiningButton.innerText = '提取成功'; })
+            // .on('confirmation', function(confNumber, receipt, latestBlockHash) { console.log(confNumber, receipt, latestBlockHash) })
+            .on('error', function(error) { console.log(error), withdrawMiningButton.innerText = '提取失败'; })
+            .then(function(receipt) {
+                // will be fired once the receipt is mined
+                console.log(receipt);
+                withdrawMiningButton.innerText = '提取成功';
+            });
+        await refreshHomepageData();
+    } catch (error) {
+        withdrawMiningButton.innerText = '提取失败';
+        console.error(error)
+    }
+}
+
+const getNextClaimTimestamp = async () => {
+    const timestamp = await contractInstance.methods.nextAvailableClaimDate(currentAccount).call();
+    console.log(timestamp);
+    return timestamp;
+}
+
+const getClaimableRewardAmount = async () => {
+    let amount = await contractInstance.methods.getClaimableReward(currentAccount).call();
+    amount = web3Instance.utils.fromWei(amount);
+    amount = parseFloat(amount).toFixed(2);
+    console.log(amount);
+    return amount;
+}
+
+const getActivedAccountCount = async () => {
+    const amount = await contractInstance.methods.getActivedAddressCount().call();
+    return amount;
+}
+
+const getMyMiningPower = async () => {
+    const power = await contractInstance.methods.addressPower(currentAccount).call();
+    return power;
+}
+
+const getMyMiningAmountToWithdraw = async () => {
+    let amount = await contractInstance.methods.getMiningAmount(currentAccount).call();
+    amount = web3Instance.utils.fromWei(amount);
+    amount = parseFloat(amount).toFixed(2);
+    console.log(amount);
+    return amount;
+}
+
+const getTotalMiningPower = async () => {
+    const power = await contractInstance.methods.totalPower().call();
+    return power;
+}
+
 const getInvitedAccounts = async () => {
     const result = [];
 
@@ -1558,4 +2098,9 @@ const getInvitedAccounts = async () => {
         result.push(...tmp);
     }
     return result;
+}
+
+const isAccountActivated = async (address) => {
+    const activated = await contractInstance.methods.accountActivated(address).call();
+    return activated;
 }
