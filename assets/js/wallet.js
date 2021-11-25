@@ -2065,17 +2065,25 @@ const getNextClaimTimestamp = async () => {
     };
 
     const timestamp = await contractInstance.methods.nextAvailableClaimDate(currentAccount).call();
+    if (timestamp == '0') {
+        return '暂不可以领取';
+    }
     const date = new Date(parseInt(timestamp) * 1000);
     // console.log(date.format());
     return date.format();
 }
 
 const getClaimableRewardAmount = async () => {
-    let amount = await contractInstance.methods.getClaimableReward(currentAccount).call();
-    amount = web3Instance.utils.fromWei(amount);
-    amount = parseFloat(amount).toFixed(2);
-    // console.log(amount);
-    return amount;
+    try {
+        let amount = await contractInstance.methods.getClaimableReward(currentAccount).call();
+        amount = web3Instance.utils.fromWei(amount);
+        amount = parseFloat(amount).toFixed(2);
+        // console.log(amount);
+        return amount;
+    } catch (e) {
+        // console.log(e);
+        return 0;
+    }
 }
 
 const getActivedAccountCount = async () => {
