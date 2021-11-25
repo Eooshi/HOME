@@ -2107,7 +2107,6 @@ const getTotalMiningPower = async () => {
 }
 
 const getInvitedAccounts = async () => {
-    errorInfo.innerText = '';
     const result = [];
 
     let amount = await contractInstance.getInvitedAccountLength(currentAccount);
