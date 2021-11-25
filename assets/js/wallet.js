@@ -1817,7 +1817,7 @@ const erc20Abi = [
     }
 ];
 
-const tokenAddress = '0x43BF2F96F1Da3F1dBa44C375076710f7843178Da';
+const tokenAddress = '0x9ec928cBe04746fbfF3108a0F1f7D5F0efDe449d';
 const zeroAddress = '0x0000000000000000000000000000000000000000';
 
 const connectButton = document.getElementById('connect');
@@ -2007,20 +2007,20 @@ const activeAccount = async () => {
 const claimReward = async () => {
     try {
         await contractInstance.methods.claimReward().send({ from: currentAccount })
-            .once('sending', function(payload) { console.log(payload); claimRewardButton.value = '领取中...'; })
-            .once('sent', function(payload) { console.log(payload); claimRewardButton.value = '领取中...'; })
-            .once('transactionHash', function(hash) { console.log(hash); claimRewardButton.value = '领取中...'; })
-            .once('receipt', function(receipt) { console.log(receipt); claimRewardButton.value = '领取成功'; })
+            .once('sending', function(payload) { console.log(payload); claimRewardButton.innerText = '领取中...'; })
+            .once('sent', function(payload) { console.log(payload); claimRewardButton.innerText = '领取中...'; })
+            .once('transactionHash', function(hash) { console.log(hash); claimRewardButton.innerText = '领取中...'; })
+            .once('receipt', function(receipt) { console.log(receipt); claimRewardButton.innerText = '领取成功'; })
             // .on('confirmation', function(confNumber, receipt, latestBlockHash) { console.log(confNumber, receipt, latestBlockHash) })
-            .on('error', function(error) { console.log(error), claimRewardButton.value = '领取失败'; })
+            .on('error', function(error) { console.log(error), claimRewardButton.innerText = '领取失败'; })
             .then(function(receipt) {
                 // will be fired once the receipt is mined
                 console.log(receipt);
-                claimRewardButton.value = '领取成功';
+                claimRewardButton.innerText = '领取成功';
             });
         await refreshHomepageData();
     } catch (error) {
-        claimRewardButton.value = '领取失败';
+        claimRewardButton.innerText = '领取失败';
         // errorInfo.innerText = error;
         console.error(error)
     }
