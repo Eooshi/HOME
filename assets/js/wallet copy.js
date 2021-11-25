@@ -1841,8 +1841,7 @@ const nextAvailableDateElement = document.getElementById('nextAvailableDate');
 
 let contractInstance = null;
 let currentAccount = null;
-let ethersProvider = null;
-let ethersSigner = null;
+let web3Instance = null;
 let inviterAddress = zeroAddress;
 
 window.addEventListener('load', async function() {
@@ -1853,12 +1852,14 @@ window.addEventListener('load', async function() {
         inviterAddress = inviter;
     }
 
-    await connectWallet();
-    ethersProvider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-    ethersSigner = ethersProvider.getSigner();
-    contractInstance = new ethers.Contract(tokenAddress, tokenAbi, ethersSigner);
-    currentAccount = await ethersSigner.getAddress();
-    console.log(currentAccount);
+    if (typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask) {
+        web3Instance = new Web3(window.ethereum);
+    } else if (typeof window.web3 !== 'undefined') {
+        web3Instance = new Web3(window.web3.currentProvider);
+    } else {
+        errorInfo.innerText = 'No available web3 provider';
+        return;
+    }
 
     if (isInHomePage()) {
         inviteLinkInput.value = generateInviteLink(zeroAddress);
@@ -1867,15 +1868,26 @@ window.addEventListener('load', async function() {
         copyInviteAddressButton.onclick = copyTestToClipboard;
     }
 
-    if (isInHomePage()) {
-        connectButton.innerText = getDisplayAddress(currentAccount);
-        connectButton.onclick = () => { };
-        inviteLinkInput.value = generateInviteLink(currentAccount);
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    if (accounts.length == 0) {
+        connectButton.value = 'Connect To Wallet';
+        connectButton.onclick = onClickConnect;
+    } else {
+        currentAccount = accounts[0];
+        console.log(`current account: ${currentAccount}`);
+        info += 'currentAccount: ' + currentAccount + '\n';
 
-        activeAccountButton.onclick = activeAccount;
-        claimRewardButton.onclick = claimReward;
-        withdrawMiningButton.onclick = withdrawMining;
+        if (isInHomePage()) {
+            connectButton.innerText = getDisplayAddress(currentAccount);
+            connectButton.onclick = () => { };
+            inviteLinkInput.value = generateInviteLink(currentAccount);
+
+            activeAccountButton.onclick = activeAccount;
+            claimRewardButton.onclick = claimReward;
+            withdrawMiningButton.onclick = withdrawMining;
+        }
     }
+    contractInstance = new web3Instance.eth.Contract(tokenAbi, tokenAddress);
 
     if (invitedAccountsElement) {
         const accounts = await getInvitedAccounts();
@@ -1891,12 +1903,6 @@ window.addEventListener('load', async function() {
         await refreshHomepageData();
     }
 })
-
-const connectWallet = async () => {
-    await ethereum.request({
-        method: 'eth_requestAccounts',
-    });
-}
 
 const refreshHomepageData = async () => {
     minterAmountElement.innerText = await getActivedAccountCount();
@@ -1951,96 +1957,96 @@ const generateInviteLink = (address) => {
     return "http://eooshi.com/index.html?inviter=" + address
 }
 
-const setExceptionErrorMessage = (exception) => {
-    if ('data' in exception && 'message' in exception.data) {
-        errorInfo.innerText = exception.data.message;
-    } else if (exception.toString().search('cannot estimate gas') >= 0 || exception.toString().search('transaction may fail') >= 0) {
-        errorInfo.innerText = '合约参数校验不通过';
-    } else if (exception.toString().search('insufficient funds for intrinsic transaction') >= 0) {
-        errorInfo.innerText = '账户Eooshi代币或BNB余额不足';
-    } else {
-        errorInfo.innerText = exception;
-    }
-    
-}
-
 const setInviter = async () => {
-    errorInfo.innerText = '';
     if (inviterInput.value == null || inviterInput.value.length != zeroAddress.length) {
         return false;
     }
 
-    setInviterButton.value = '绑定上级中...';
     try {
-        const transaction = await contractInstance.setInviter(inviterInput.value, { from: currentAccount });
-        const recipient = await transaction.wait();
-        if (recipient.status == 1) {
-            setInviterButton.value = '绑定上级成功';
-        } else {
-            setInviterButton.value = '绑定上级失败';
-        }
-    } catch (e) {
-        setExceptionErrorMessage(e);
+        await contractInstance.methods.setInviter(inviterInput.value).send({ from: currentAccount })
+            .once('sending', function(payload) { console.log(payload); setInviterButton.value = '绑定上级中...'; })
+            .once('sent', function(payload) { console.log(payload); setInviterButton.value = '绑定上级中...'; })
+            .once('transactionHash', function(hash) { console.log(hash); setInviterButton.value = '绑定上级中...'; })
+            .once('receipt', function(receipt) { console.log(receipt); setInviterButton.value = '绑定上级成功'; })
+            // .on('confirmation', function(confNumber, receipt, latestBlockHash) { console.log(confNumber, receipt, latestBlockHash) })
+            .on('error', function(error) { console.log(error), setInviterButton.value = '绑定上级失败'; })
+            .then(function(receipt) {
+                // will be fired once the receipt is mined
+                console.log(receipt);
+                setInviterButton.value = '绑定上级成功';
+            });
+    } catch (error) {
         setInviterButton.value = '绑定上级失败';
+        errorInfo.innerText = error;
+        console.error(error)
     }
 }
 
 const activeAccount = async () => {
-    errorInfo.innerText = '';
-    activeAccountButton.innerText = '激活中...';
     try {
-        const transaction = await contractInstance.activateAccount({ from: currentAccount });
-        const recipient = await transaction.wait();
-        if (recipient.status == 1) {
-            activeAccountButton.innerText = '激活成功';
-            await refreshHomepageData();
-        } else {
-            activeAccountButton.innerText = '激活失败';
-        }
-    } catch (e) {
-        setExceptionErrorMessage(e);
+        await contractInstance.methods.activateAccount().send({ from: currentAccount })
+            .once('sending', function(payload) { console.log(payload); activeAccountButton.innerText = '激活中...'; })
+            .once('sent', function(payload) { console.log(payload); activeAccountButton.innerText = '激活中...'; })
+            .once('transactionHash', function(hash) { console.log(hash); activeAccountButton.innerText = '激活中...'; })
+            .once('receipt', function(receipt) { console.log(receipt); activeAccountButton.innerText = '激活成功'; })
+            // .on('confirmation', function(confNumber, receipt, latestBlockHash) { console.log(confNumber, receipt, latestBlockHash) })
+            .on('error', function(error) { console.log(error), activeAccountButton.innerText = '激活失败'; })
+            .then(function(receipt) {
+                // will be fired once the receipt is mined
+                console.log(receipt);
+                activeAccountButton.innerText = '激活成功';
+            });
+        await refreshHomepageData();
+    } catch (error) {
         activeAccountButton.innerText = '激活失败';
+        console.error(error)
     }
 }
 
 const claimReward = async () => {
-    errorInfo.innerText = '';
-    claimRewardButton.innerText = '领取中...';
     try {
-        const transaction = await contractInstance.claimReward({ from: currentAccount });
-        const recipient = await transaction.wait();
-        if (recipient.status == 1) {
-            claimRewardButton.innerText = '领取成功';
-            await refreshHomepageData();
-        } else {
-            claimRewardButton.innerText = '领取失败';
-        }
-    } catch (e) {
-        setExceptionErrorMessage(e);
+        await contractInstance.methods.claimReward().send({ from: currentAccount })
+            .once('sending', function(payload) { console.log(payload); claimRewardButton.innerText = '领取中...'; })
+            .once('sent', function(payload) { console.log(payload); claimRewardButton.innerText = '领取中...'; })
+            .once('transactionHash', function(hash) { console.log(hash); claimRewardButton.innerText = '领取中...'; })
+            .once('receipt', function(receipt) { console.log(receipt); claimRewardButton.innerText = '领取成功'; })
+            // .on('confirmation', function(confNumber, receipt, latestBlockHash) { console.log(confNumber, receipt, latestBlockHash) })
+            .on('error', function(error) { console.log(error), claimRewardButton.innerText = '领取失败'; })
+            .then(function(receipt) {
+                // will be fired once the receipt is mined
+                console.log(receipt);
+                claimRewardButton.innerText = '领取成功';
+            });
+        await refreshHomepageData();
+    } catch (error) {
         claimRewardButton.innerText = '领取失败';
+        // errorInfo.innerText = error;
+        console.error(error)
     }
 }
 
 const withdrawMining = async () => {
-    errorInfo.innerText = '';
-    withdrawMiningButton.innerText = '提取中...';
     try {
-        const transaction = await contractInstance.withdrawMining({ from: currentAccount, value: ethers.utils.parseUnits("0.01") });
-        const recipient = await transaction.wait();
-        if (recipient.status == 1) {
-            withdrawMiningButton.innerText = '提取成功';
-            await refreshHomepageData();
-        } else {
-            withdrawMiningButton.innerText = '提取失败';
-        }
-    } catch (e) {
-        setExceptionErrorMessage(e);
-        withdrawMiningButton.innerText = '领取失败';
+        await contractInstance.methods.withdrawMining().send({ from: currentAccount, value: web3Instance.utils.toWei('10', 'finney') })
+            .once('sending', function(payload) { console.log(payload); withdrawMiningButton.innerText = '提取中...'; })
+            .once('sent', function(payload) { console.log(payload); withdrawMiningButton.innerText = '提取中...'; })
+            .once('transactionHash', function(hash) { console.log(hash); withdrawMiningButton.innerText = '提取中...'; })
+            .once('receipt', function(receipt) { console.log(receipt); withdrawMiningButton.innerText = '提取成功'; })
+            // .on('confirmation', function(confNumber, receipt, latestBlockHash) { console.log(confNumber, receipt, latestBlockHash) })
+            .on('error', function(error) { console.log(error), withdrawMiningButton.innerText = '提取失败'; })
+            .then(function(receipt) {
+                // will be fired once the receipt is mined
+                console.log(receipt);
+                withdrawMiningButton.innerText = '提取成功';
+            });
+        await refreshHomepageData();
+    } catch (error) {
+        withdrawMiningButton.innerText = '提取失败';
+        console.error(error)
     }
 }
 
 const getNextClaimTimestamp = async () => {
-    errorInfo.innerText = '';
     Number.prototype.padLeft = function(base, chr) {
         var len = (String(base || 10).length - String(this).length) + 1;
         return len > 0 ? new Array(len).join(chr || '0') + this : this;
@@ -2057,7 +2063,7 @@ const getNextClaimTimestamp = async () => {
             this.getSeconds().padLeft()].join(':');;
     };
 
-    const timestamp = await contractInstance.nextAvailableClaimDate(currentAccount);
+    const timestamp = await contractInstance.methods.nextAvailableClaimDate(currentAccount).call();
     if (timestamp == '0') {
         return '暂不可以领取';
     }
@@ -2067,10 +2073,9 @@ const getNextClaimTimestamp = async () => {
 }
 
 const getClaimableRewardAmount = async () => {
-    errorInfo.innerText = '';
     try {
-        let amount = await contractInstance.getClaimableReward(currentAccount);
-        amount = ethers.utils.formatUnits(amount);
+        let amount = await contractInstance.methods.getClaimableReward(currentAccount).call();
+        amount = web3Instance.utils.fromWei(amount);
         amount = parseFloat(amount).toFixed(2);
         // console.log(amount);
         return amount;
@@ -2081,41 +2086,37 @@ const getClaimableRewardAmount = async () => {
 }
 
 const getActivedAccountCount = async () => {
-    errorInfo.innerText = '';
-    const amount = await contractInstance.getActivedAddressCount();
+    const amount = await contractInstance.methods.getActivedAddressCount().call();
     return amount;
 }
 
 const getMyMiningPower = async () => {
-    errorInfo.innerText = '';
-    const power = await contractInstance.addressPower(currentAccount);
+    const power = await contractInstance.methods.addressPower(currentAccount).call();
     return power;
 }
 
 const getMyMiningAmountToWithdraw = async () => {
-    errorInfo.innerText = '';
-    let amount = await contractInstance.getMiningAmount(currentAccount);
-    amount = ethers.utils.formatUnits(amount);
+    let amount = await contractInstance.methods.getMiningAmount(currentAccount).call();
+    amount = web3Instance.utils.fromWei(amount);
     amount = parseFloat(amount).toFixed(2);
+    // console.log(amount);
     return amount;
 }
 
 const getTotalMiningPower = async () => {
-    errorInfo.innerText = '';
-    const power = await contractInstance.totalPower();
+    const power = await contractInstance.methods.totalPower().call();
     return power;
 }
 
 const getInvitedAccounts = async () => {
-    errorInfo.innerText = '';
     const result = [];
 
-    let amount = await contractInstance.getInvitedAccountLength(currentAccount);
+    let amount = await contractInstance.methods.getInvitedAccountLength(currentAccount).call();
     let page = 0;
     const pageCount = 1;
 
     while (amount > 0) {
-        const tmp = await contractInstance.getInvitedAccountWithPaged(currentAccount, page, pageCount);
+        const tmp = await contractInstance.methods.getInvitedAccountWithPaged(currentAccount, page, pageCount).call();
         amount -= tmp.length;
         page += 1;
         result.push(...tmp);
@@ -2124,7 +2125,6 @@ const getInvitedAccounts = async () => {
 }
 
 const isAccountActivated = async (address) => {
-    errorInfo.innerText = '';
-    const activated = await contractInstance.accountActivated(address);
+    const activated = await contractInstance.methods.accountActivated(address).call();
     return activated;
 }
